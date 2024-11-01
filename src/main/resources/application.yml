@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: store.manager
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: store
+logging:
+  level:
+    org:
+      springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
