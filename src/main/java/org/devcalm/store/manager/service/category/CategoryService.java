@@ -22,7 +22,7 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
     private final CategoryFetcher categoryFetcher;
     private final CategoryRepository categoryRepository;
-    private final CategoryDBHandler categoryDBHandler;
+    private final CategoryRepositorySupport categoryRepositorySupport;
 
     public Mono<CategoryDto> create(SaveCategoryRequest request) {
         return extractParentCategory(request)
@@ -71,7 +71,7 @@ public class CategoryService {
                 .flatMap(category -> {
                     category.setArchived(true);
                     return categoryRepository.save(category);
-                }).then(categoryDBHandler.archiveCategories(
+                }).then(categoryRepositorySupport.archiveCategories(
                         categoryFetcher.fetchDescendants(id)
                 ));
     }

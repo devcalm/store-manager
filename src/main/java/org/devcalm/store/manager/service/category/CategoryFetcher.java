@@ -23,12 +23,11 @@ public class CategoryFetcher {
 
     public Mono<Category> findById(ObjectId id) {
         return categoryRepository.findById(id)
-//                .switchIfEmpty(Mono.error(new EntityNotFoundException("Category %s is not found.".formatted(id))));
-                .switchIfEmpty(Mono.error(new EntityNotFoundException("Category not found.")));
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Category %s is not found.".formatted(id))));
     }
 
     public Flux<Category> fetchParents(String startWithId) {
-       var graphLookup = GraphLookupOperation.builder()
+        var graphLookup = GraphLookupOperation.builder()
                 .from(Category.COLLECTION_NAME)
                 .startWith("$parentId")
                 .connectFrom("parentId")
@@ -56,5 +55,4 @@ public class CategoryFetcher {
         return template.aggregate(aggregation, Category.COLLECTION_NAME, IdsProjection.class)
                 .flatMap(c -> Flux.fromIterable(c.ids()));
     }
-
 }
