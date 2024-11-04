@@ -1,9 +1,10 @@
 version: "3.8"
 
 services:
-  mongo1:
+  mongo:
     image: mongo:8.0
     command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    container_name: store-mongo
     ports:
       - "27017:27017"
     extra_hosts:
@@ -16,9 +17,9 @@ services:
       start_interval: 1s
       retries: 30
     volumes:
-      - "mongo1_data:/data/db"
-      - "mongo1_config:/data/configdb"
+      - "store_mongo_data:/data/db"
+      - "store_mongo_config:/data/configdb"
 
 volumes:
-  mongo1_data:
-  mongo1_config:
+  store_mongo_data:
+  store_mongo_config:

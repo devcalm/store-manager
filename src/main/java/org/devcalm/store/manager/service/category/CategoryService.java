@@ -8,6 +8,9 @@ import org.devcalm.store.manager.domain.repository.CategoryRepository;
 import org.devcalm.store.manager.web.dto.CategoryDto;
 import org.devcalm.store.manager.web.dto.CategoryNode;
 import org.devcalm.store.manager.web.dto.SaveCategoryRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -38,6 +41,12 @@ public class CategoryService {
     public Mono<CategoryDto> find(ObjectId id) {
         return categoryFetcher.findById(id)
                 .map(categoryMapper::toDto);
+    }
+
+    public Mono<Page<CategoryDto>> findAll(Pageable pageable) {
+        return categoryRepository.countByArchivedFalse()
+                .zipWith(categoryRepository.findAllByArchivedFalse(pageable).map(categoryMapper::toDto).collectList())
+                .map(tuple -> new PageImpl<>(tuple.getT2(), pageable, tuple.getT1()));
     }
 
     public Mono<CategoryDto> update(ObjectId id, SaveCategoryRequest request) {
@@ -77,6 +86,6 @@ public class CategoryService {
     }
 
     public Flux<CategoryNode> fetchHierarchy() {
-        return categoryMapper.toCategoryNodes(categoryRepository.findByArchivedFalse());
+        return categoryMapper.toCategoryNodes(categoryRepository.findAllByArchivedFalse());
     }
 }

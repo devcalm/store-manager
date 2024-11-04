@@ -2,6 +2,7 @@ package org.devcalm.store.manager.web.api;
 
 import lombok.RequiredArgsConstructor;
 import org.devcalm.store.manager.domain.exception.EntityNotFoundException;
+import org.devcalm.store.manager.domain.exception.StoreException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,16 @@ public class ExceptionAdviserController {
     public ProblemDetail entityNotFound(EntityNotFoundException ex, ServerHttpRequest request, ServerWebExchange exchange) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, messageSource.getMessage(ex.getMessage(), null, ex.getLocalizedMessage(), extractLocale(exchange)));
         problemDetail.setTitle("Resource Not Found");
+        problemDetail.setInstance(request.getURI());
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(StoreException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ProblemDetail commonError(StoreException ex, ServerHttpRequest request, ServerWebExchange exchange) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, messageSource.getMessage(ex.getMessage(), null, ex.getLocalizedMessage(), extractLocale(exchange)));
+        problemDetail.setTitle("Client error");
         problemDetail.setInstance(request.getURI());
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
