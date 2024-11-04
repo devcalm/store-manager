@@ -22,7 +22,7 @@ public class CategoryFetcher {
     private final CategoryRepository categoryRepository;
 
     public Mono<Category> findById(ObjectId id) {
-        return categoryRepository.findById(id)
+        return categoryRepository.findByIdAndArchivedFalse(id)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Category %s is not found.".formatted(id))));
     }
 
