@@ -25,7 +25,7 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
     private final CategoryFetcher categoryFetcher;
     private final CategoryRepository categoryRepository;
-    private final CategoryRepositorySupport categoryRepositorySupport;
+    private final CategoryWriteModel categoryWriteModel;
 
     public Mono<CategoryDto> create(SaveCategoryRequest request) {
         return extractParentCategory(request)
@@ -33,7 +33,6 @@ public class CategoryService {
                 .defaultIfEmpty(Optional.empty())
                 .flatMap(parent -> {
                     var category = categoryMapper.toEntity(request);
-                    category.setParent(parent.orElse(null));
                     return categoryRepository.save(category);
                 }).map(categoryMapper::toDto);
     }
@@ -57,12 +56,9 @@ public class CategoryService {
 
         return Mono.zip(categoryMono, parentMono).flatMap(tuple -> {
             var category = tuple.getT1();
-            var parent = tuple.getT2();
-
             category.setName(request.name());
             category.setDescription(request.description());
             category.setParentId(request.parentId());
-            category.setParent(parent.orElse(null));
             return categoryRepository.save(category);
         }).map(categoryMapper::toDto);
     }
@@ -80,7 +76,7 @@ public class CategoryService {
                 .flatMap(category -> {
                     category.setArchived(true);
                     return categoryRepository.save(category);
-                }).then(categoryRepositorySupport.archiveCategories(
+                }).then(categoryWriteModel.archiveCategories(
                         categoryFetcher.fetchDescendants(id)
                 ));
     }

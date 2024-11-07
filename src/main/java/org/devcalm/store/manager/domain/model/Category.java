@@ -1,12 +1,12 @@
 package org.devcalm.store.manager.domain.model;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -15,8 +15,6 @@ public class Category extends BaseEntity {
     private String name;
     private String description;
     private ObjectId parentId;
-    @Transient
-    private Category parent;
 
     public static final String COLLECTION_NAME = "categories";
 }
