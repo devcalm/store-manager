@@ -34,10 +34,10 @@ public class StoreFetcher {
                 .collectList()
                 .flatMap(ids -> {
                     if (ids.isEmpty()) {
-                        return Mono.error(new StoreException("No categories were found"));
+                        return Mono.error(new StoreException("No categories were found."));
                     }
                     if (ids.size() != categories.size()) {
-                        return Mono.error(new StoreException("Category IDs must have same length"));
+                        return Mono.error(new StoreException("Category IDs must have same length."));
                     }
                     return Mono.empty();
                 });

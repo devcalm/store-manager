@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: store.manager
+  data:
+    mongodb:
+      uri: ${mongodb.container.uri}
+      database: store-test

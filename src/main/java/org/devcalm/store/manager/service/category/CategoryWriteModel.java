@@ -14,7 +14,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @RequiredArgsConstructor
-public class CategoryRepositorySupport {
+public class CategoryWriteModel {
 
     private final ReactiveMongoTemplate template;
 

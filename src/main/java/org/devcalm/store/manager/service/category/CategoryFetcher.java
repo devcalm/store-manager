@@ -26,23 +26,9 @@ public class CategoryFetcher {
                 .switchIfEmpty(Mono.error(new EntityNotFoundException("Category %s is not found.".formatted(id))));
     }
 
-    public Flux<Category> fetchParents(String startWithId) {
-        var graphLookup = GraphLookupOperation.builder()
-                .from(Category.COLLECTION_NAME)
-                .startWith("$parentId")
-                .connectFrom("parentId")
-                .connectTo("_id")
-                .as("parents");
-
-        var match = Aggregation.match(Criteria.where("_id").is(startWithId));
-        var aggregation = Aggregation.newAggregation(match, graphLookup);
-
-        return template.aggregate(aggregation, Category.COLLECTION_NAME, Category.class);
-    }
-
     public Flux<ObjectId> fetchDescendants(ObjectId startWithId) {
         var graphLookup = GraphLookupOperation.builder()
-                .from("categories")
+                .from(Category.COLLECTION_NAME)
                 .startWith("$_id")
                 .connectFrom("_id")
                 .connectTo("parentId")
