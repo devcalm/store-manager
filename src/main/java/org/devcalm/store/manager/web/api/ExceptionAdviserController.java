@@ -16,9 +16,8 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.time.Instant;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -30,20 +29,24 @@ public class ExceptionAdviserController {
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail entityNotFound(EntityNotFoundException ex, ServerHttpRequest request, ServerWebExchange exchange) {
+        var instantEntry = Properties.TIMESTAMP.getInstantEntry();
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, messageSource.getMessage(ex.getMessage(), null, ex.getLocalizedMessage(), extractLocale(exchange)));
+
         problemDetail.setTitle("Resource Not Found");
         problemDetail.setInstance(request.getURI());
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(instantEntry.getKey(), instantEntry.getValue());
         return problemDetail;
     }
 
     @ExceptionHandler(StoreException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ProblemDetail commonError(StoreException ex, ServerHttpRequest request, ServerWebExchange exchange) {
+        var instantEntry = Properties.TIMESTAMP.getInstantEntry();
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, messageSource.getMessage(ex.getMessage(), null, ex.getLocalizedMessage(), extractLocale(exchange)));
+
         problemDetail.setTitle("Client error");
         problemDetail.setInstance(request.getURI());
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(instantEntry.getKey(), instantEntry.getValue());
         return problemDetail;
     }
 
@@ -58,13 +61,26 @@ public class ExceptionAdviserController {
                 }
         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a));
 
-        var detail =  "Validation failed for elements: " + String.join(",", errors.keySet());
+        var instantEntry = Properties.TIMESTAMP.getInstantEntry();
+        var detail = "Validation failed for elements: " + String.join(",", errors.keySet());
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, detail);
+
         problemDetail.setTitle("Validation Errors");
         problemDetail.setInstance(request.getURI());
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(instantEntry.getKey(), instantEntry.getValue());
         problemDetail.setProperty("errors", errors);
         return problemDetail;
+    }
+
+    @RequiredArgsConstructor
+    private enum Properties {
+        TIMESTAMP(() -> new AbstractMap.SimpleEntry<>("timestamp", Instant.now()));
+
+        private final Supplier<Map.Entry<String, Instant>> instantSupplier;
+
+        public Map.Entry<String, Instant> getInstantEntry() {
+            return instantSupplier.get();
+        }
     }
 
     private Locale extractLocale(ServerWebExchange exchange) {
