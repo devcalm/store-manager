@@ -3,8 +3,10 @@ package org.devcalm.store.manager.service.category;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.domain.exception.EntityNotFoundException;
+import org.devcalm.store.manager.domain.exception.StoreException;
 import org.devcalm.store.manager.domain.model.Category;
 import org.devcalm.store.manager.domain.repository.CategoryRepository;
+import org.devcalm.store.manager.domain.repository.projection.IdProjection;
 import org.devcalm.store.manager.domain.repository.projection.IdsProjection;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -13,6 +15,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -40,5 +44,23 @@ public class CategoryFetcher {
         var aggregation = Aggregation.newAggregation(match, graphLookup, project);
         return template.aggregate(aggregation, Category.COLLECTION_NAME, IdsProjection.class)
                 .flatMap(c -> Flux.fromIterable(c.ids()));
+    }
+
+    public Mono<Void> checkExistCategories(List<ObjectId> categories) {
+        if (categories == null || categories.isEmpty()) {
+            return Mono.empty();
+        }
+        return categoryRepository.findByIdInAndArchivedIsFalse(categories)
+                .map(IdProjection::id)
+                .collectList()
+                .flatMap(ids -> {
+                    if (ids.isEmpty()) {
+                        return Mono.error(new StoreException("No categories were found."));
+                    }
+                    if (ids.size() != categories.size()) {
+                        return Mono.error(new StoreException("Category IDs must have same length."));
+                    }
+                    return Mono.empty();
+                });
     }
 }

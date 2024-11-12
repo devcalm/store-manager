@@ -3,6 +3,7 @@ package org.devcalm.store.manager.service.store;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.domain.repository.StoreRepository;
+import org.devcalm.store.manager.service.category.CategoryFetcher;
 import org.devcalm.store.manager.web.dto.SaveStoreRequest;
 import org.devcalm.store.manager.web.dto.StoreDto;
 import org.springframework.data.domain.Page;
@@ -17,10 +18,11 @@ public class StoreService {
 
     private final StoreMapper storeMapper;
     private final StoreFetcher storeFetcher;
+    private final CategoryFetcher categoryFetcher;
     private final StoreRepository storeRepository;
 
     public Mono<StoreDto> create(SaveStoreRequest request) {
-        return storeFetcher.checkExistCategories(request.categories())
+        return categoryFetcher.checkExistCategories(request.categories())
                 .then(Mono.defer(() -> storeRepository.save(storeMapper.toEntity(request)).map(storeMapper::toDto)));
     }
 
@@ -43,7 +45,7 @@ public class StoreService {
     }
 
     public Mono<StoreDto> update(ObjectId id, SaveStoreRequest request) {
-        return storeFetcher.checkExistCategories(request.categories())
+        return categoryFetcher.checkExistCategories(request.categories())
                 .then(Mono.defer(() -> storeFetcher.findById(id))
                         .flatMap(store -> {
                             store.setName(request.name());
