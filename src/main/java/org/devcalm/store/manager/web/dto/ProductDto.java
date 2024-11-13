@@ -24,6 +24,7 @@ public class ProductDto {
     private BigDecimal price;
     private double discount;
     private String description;
+    private int timeTakenInMinutes;
     private String notes;
     @JsonSerialize(using = ObjectIdListSerializer.class)
     private List<ObjectId> categories;

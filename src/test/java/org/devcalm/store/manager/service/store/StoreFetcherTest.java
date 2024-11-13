@@ -4,17 +4,19 @@ import org.bson.types.ObjectId;
 import org.devcalm.store.manager.MongoTestConfig;
 import org.devcalm.store.manager.data.StoreTestDataService;
 import org.devcalm.store.manager.domain.exception.EntityNotFoundException;
-import org.devcalm.store.manager.service.category.CategoryFetcher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.test.StepVerifier;
 
 @DataMongoTest
 @ContextConfiguration(classes = MongoTestConfig.class)
-@ComponentScan(basePackageClasses = {StoreFetcher.class, StoreTestDataService.class, CategoryFetcher.class})
+@ComponentScan(basePackageClasses = {StoreFetcher.class, StoreTestDataService.class},
+        excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = StoreService.class)}
+)
 class StoreFetcherTest {
 
     @Autowired

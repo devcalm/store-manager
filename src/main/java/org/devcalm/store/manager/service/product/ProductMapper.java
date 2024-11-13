@@ -28,6 +28,7 @@ public class ProductMapper {
                 .notes(entity.getNotes())
                 .price(entity.getPrice())
                 .discount(entity.getDiscount())
+                .timeTakenInMinutes(entity.getTimeTakenInMinutes())
                 .categories(entity.getCategoryIds())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
