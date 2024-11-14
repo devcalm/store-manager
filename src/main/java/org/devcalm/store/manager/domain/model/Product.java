@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "products")
+@Document(collection = Product.COLLECTION_NAME)
 public class Product extends BaseEntity {
     private String name;
     private BigDecimal price;
@@ -22,4 +22,6 @@ public class Product extends BaseEntity {
     private String notes;
     private List<ObjectId> categoryIds;
     private ObjectId vendorId;
+
+    public static final String COLLECTION_NAME = "products";
 }

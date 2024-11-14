@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "stores")
+@Document(collection = Store.COLLECTION_NAME)
 public class Store extends BaseEntity {
     private String name;
     private String description;
