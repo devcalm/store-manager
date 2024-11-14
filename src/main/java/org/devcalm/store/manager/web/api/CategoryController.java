@@ -3,6 +3,7 @@ package org.devcalm.store.manager.web.api;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.service.category.CategoryService;
+import org.devcalm.store.manager.service.vendor.VendorFetcher;
 import org.devcalm.store.manager.web.dto.CategoryDto;
 import org.devcalm.store.manager.web.dto.CategoryNode;
 import org.devcalm.store.manager.web.dto.SaveCategoryRequest;
@@ -16,45 +17,54 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("api/category")
+@RequestMapping("api/category/{vendorId}")
 @RequiredArgsConstructor
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final VendorFetcher vendorFetcher;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<CategoryDto> create(@RequestBody @Validated SaveCategoryRequest request) {
-        return categoryService.create(request);
+    public Mono<CategoryDto> create(@PathVariable ObjectId vendorId, @RequestBody @Validated SaveCategoryRequest request) {
+        return vendorFetcher.findById(vendorId)
+                .flatMap(vendor -> categoryService.create(vendor, request));
     }
 
     @GetMapping("{id}")
-    public Mono<CategoryDto> find(@PathVariable ObjectId id) {
-        return categoryService.find(id);
+    public Mono<CategoryDto> find(@PathVariable ObjectId vendorId, @PathVariable ObjectId id) {
+        return vendorFetcher.findById(vendorId)
+                .then(categoryService.find(id));
     }
 
     @GetMapping
-    public Mono<Page<CategoryDto>> findAll(@RequestParam(defaultValue = "0") int page,
+    public Mono<Page<CategoryDto>> findAll(@PathVariable ObjectId vendorId,
+                                           @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "25") int size,
                                            @RequestParam(defaultValue = "ID") SortField sortField,
                                            @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
         var pageable = PageRequest.of(page, size, sortDirection, sortField.getDatabaseFileName());
-        return categoryService.findAll(pageable);
+        return vendorFetcher.findById(vendorId)
+                .then(categoryService.findAll(pageable));
     }
 
     @PutMapping("{id}")
-    public Mono<CategoryDto> update(@RequestBody @Validated SaveCategoryRequest request, @PathVariable ObjectId id) {
-        return categoryService.update(id, request);
+    public Mono<CategoryDto> update(@PathVariable ObjectId vendorId, @RequestBody @Validated SaveCategoryRequest request, @PathVariable ObjectId id) {
+        return vendorFetcher.findById(vendorId)
+                .then(categoryService.update(id, request));
     }
 
     @DeleteMapping({"{id}"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> delete(@PathVariable ObjectId id) {
-        return categoryService.delete(id);
+    public Mono<Void> delete(@PathVariable ObjectId vendorId, @PathVariable ObjectId id) {
+        return vendorFetcher.findById(vendorId)
+                .then(categoryService.delete(id));
+
     }
 
     @GetMapping("hierarchy")
-    public Flux<CategoryNode> hierarchy() {
-        return categoryService.fetchHierarchy();
+    public Flux<CategoryNode> hierarchy(@PathVariable ObjectId vendorId) {
+        return vendorFetcher.findById(vendorId)
+                .thenMany(categoryService.fetchHierarchy());
     }
 }

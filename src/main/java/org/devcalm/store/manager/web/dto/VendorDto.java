@@ -9,7 +9,6 @@ import org.bson.types.ObjectId;
 import org.devcalm.store.manager.infrastructure.serializer.ObjectIdListSerializer;
 import org.devcalm.store.manager.infrastructure.serializer.ObjectIdSerializer;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -17,17 +16,15 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDto {
+public class VendorDto {
     @JsonSerialize(using = ObjectIdSerializer.class)
     private ObjectId id;
-    private String name;
-    private BigDecimal price;
-    private double discount;
-    private String description;
-    private int timeTakenInMinutes;
-    private String notes;
     @JsonSerialize(using = ObjectIdListSerializer.class)
     private List<ObjectId> categories;
+    @JsonSerialize(using = ObjectIdListSerializer.class)
+    private List<ObjectId> products;
+    @JsonSerialize(using = ObjectIdListSerializer.class)
+    private List<ObjectId> stores;
     private Instant updatedAt;
     private Instant createdAt;
 }

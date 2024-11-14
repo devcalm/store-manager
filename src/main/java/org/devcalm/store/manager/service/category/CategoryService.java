@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.domain.exception.EntityNotFoundException;
 import org.devcalm.store.manager.domain.model.Category;
+import org.devcalm.store.manager.domain.model.Vendor;
 import org.devcalm.store.manager.domain.repository.CategoryRepository;
 import org.devcalm.store.manager.web.dto.CategoryDto;
 import org.devcalm.store.manager.web.dto.CategoryNode;
@@ -27,12 +28,13 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryWriteModel categoryWriteModel;
 
-    public Mono<CategoryDto> create(SaveCategoryRequest request) {
+    public Mono<CategoryDto> create(Vendor vendor, SaveCategoryRequest request) {
         return extractParentCategory(request)
                 .map(Optional::of)
                 .defaultIfEmpty(Optional.empty())
                 .flatMap(parent -> {
                     var category = categoryMapper.toEntity(request);
+                    category.setVendorId(vendor.getId());
                     return categoryRepository.save(category);
                 }).map(categoryMapper::toDto);
     }

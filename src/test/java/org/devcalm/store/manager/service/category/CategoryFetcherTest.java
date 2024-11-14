@@ -2,7 +2,7 @@ package org.devcalm.store.manager.service.category;
 
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.MongoTestConfig;
-import org.devcalm.store.manager.data.CategoryTestDataService;
+import org.devcalm.store.manager.data.CategoryTestData;
 import org.devcalm.store.manager.domain.exception.EntityNotFoundException;
 import org.devcalm.store.manager.domain.exception.StoreException;
 import org.devcalm.store.manager.domain.model.Category;
@@ -10,8 +10,7 @@ import org.devcalm.store.manager.domain.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,13 +19,12 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
 @ContextConfiguration(classes = MongoTestConfig.class)
-@ComponentScan(basePackageClasses = {CategoryService.class, CategoryTestDataService.class})
+@ComponentScan(basePackageClasses = {CategoryService.class, CategoryTestData.class})
 class CategoryFetcherTest {
 
     @Autowired
@@ -34,7 +32,7 @@ class CategoryFetcherTest {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
-    private CategoryTestDataService categoryTestDataService;
+    private CategoryTestData categoryTestData;
 
     @BeforeEach
     void setUp() {
@@ -43,7 +41,7 @@ class CategoryFetcherTest {
 
     @Test
     void shouldFindById() {
-        var category = categoryTestDataService.createCategory();
+        var category = categoryTestData.createCategory();
 
         StepVerifier.create(fetcher.findById(category.getId()))
                 .expectNext(category)
@@ -62,7 +60,7 @@ class CategoryFetcherTest {
 
     @Test
     void shouldFetchDescendants() {
-        var child = categoryTestDataService.createCategoryWithParent();
+        var child = categoryTestData.createCategoryWithParent();
         var parent = categoryRepository.findById(child.getParentId()).block();
 
         assertThat(parent).isNotNull();
@@ -73,22 +71,15 @@ class CategoryFetcherTest {
     }
 
     @ParameterizedTest
-    @MethodSource("emptyList")
+    @NullAndEmptySource
     void shouldReturnEmpty(List<ObjectId> categories) {
         StepVerifier.create(fetcher.checkExistCategories(categories))
                 .verifyComplete();
     }
 
-    private static Stream<Arguments> emptyList() {
-        return Stream.of(
-                Arguments.of(List.of()),
-                Arguments.of((List<ObjectId>) null)
-        );
-    }
-
     @Test
     void shouldCheckExistCategories() {
-        var categories = categoryTestDataService.createCategories(5);
+        var categories = categoryTestData.createCategories(5);
         var categoryIds = categories.stream().map(Category::getId).toList();
 
         StepVerifier.create(fetcher.checkExistCategories(categoryIds))
@@ -105,7 +96,7 @@ class CategoryFetcherTest {
 
     @Test
     void shouldThrowExceptionForDifferentCollectionSize() {
-        var categories = categoryTestDataService.createCategories(2);
+        var categories = categoryTestData.createCategories(2);
         var categoryIds = categories.stream().map(Category::getId).collect(Collectors.toList());
         categoryIds.add(new ObjectId());
 

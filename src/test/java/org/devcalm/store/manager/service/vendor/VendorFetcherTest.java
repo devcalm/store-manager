@@ -1,8 +1,8 @@
-package org.devcalm.store.manager.service.store;
+package org.devcalm.store.manager.service.vendor;
 
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.MongoTestConfig;
-import org.devcalm.store.manager.data.StoreTestData;
+import org.devcalm.store.manager.data.VendorTestData;
 import org.devcalm.store.manager.domain.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,31 +14,32 @@ import reactor.test.StepVerifier;
 
 @DataMongoTest
 @ContextConfiguration(classes = MongoTestConfig.class)
-@ComponentScan(basePackageClasses = {StoreFetcher.class, StoreTestData.class},
-        excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = StoreService.class)}
+@ComponentScan(basePackageClasses = {VendorFetcher.class, VendorTestData.class},
+        excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = VendorService.class)}
 )
-class StoreFetcherTest {
+class VendorFetcherTest {
 
     @Autowired
-    private StoreTestData storeTestData;
+    private VendorTestData testData;
     @Autowired
-    private StoreFetcher storeFetcher;
+    private VendorFetcher fetcher;
 
     @Test
     void shouldFindById() {
-        var store = storeTestData.createStore();
+        var vendor = testData.createVendor();
 
-        StepVerifier.create(storeFetcher.findById(store.getId()))
-                .expectNext(store)
+        StepVerifier.create(fetcher.findById(vendor.getId()))
+                .expectNext(vendor)
                 .verifyComplete();
     }
 
     @Test
-    void shouldThrowExceptionIfStoreNotFound() {
+    void shouldThrowExceptionWhenVendorNotFound() {
         var id = new ObjectId();
-        StepVerifier.create(storeFetcher.findById(id))
+
+        StepVerifier.create(fetcher.findById(id))
                 .expectErrorMatches(throwable -> throwable instanceof EntityNotFoundException &&
-                        throwable.getMessage().equals("Store %s is not found.".formatted(id)))
+                        throwable.getMessage().equals("Vendor %s is not found.".formatted(id)))
                 .verify();
     }
 }

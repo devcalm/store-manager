@@ -4,6 +4,7 @@ import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -19,6 +20,9 @@ public class Store extends BaseEntity {
     private ContactInfo contactInfo;
     private List<ObjectId> categoryIds;
     private List<String> tags;
+    private ObjectId vendorId;
+    @Builder.Default
+    private List<ProductCustomization> productCustomizations = new ArrayList<>();
 
     public static final String COLLECTION_NAME = "stores";
 }
