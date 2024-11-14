@@ -1,7 +1,7 @@
 package org.devcalm.store.manager.service.vendor;
 
 import org.devcalm.store.manager.domain.model.Vendor;
-import org.devcalm.store.manager.web.dto.CreateVendorRequest;
+import org.devcalm.store.manager.web.dto.SaveVendorRequest;
 import org.devcalm.store.manager.web.dto.VendorDto;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ import java.util.Objects;
 @Component
 public class VendorMapper {
 
-    public Vendor toEntity(CreateVendorRequest request) {
+    public Vendor toEntity(SaveVendorRequest request) {
         return Vendor.builder()
                 .name(request.name())
                 .description(request.description())
@@ -21,6 +21,8 @@ public class VendorMapper {
     public VendorDto toDto(Vendor entity) {
         return VendorDto.builder()
                 .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
                 .categories(Objects.requireNonNullElse(entity.getCategoryIds(), List.of()))
                 .products(Objects.requireNonNullElse(entity.getProductIds(), List.of()))
                 .stores(Objects.requireNonNullElse(entity.getStoreIds(), List.of()))

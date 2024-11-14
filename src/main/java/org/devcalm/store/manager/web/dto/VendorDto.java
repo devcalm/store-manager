@@ -19,6 +19,8 @@ import java.util.List;
 public class VendorDto {
     @JsonSerialize(using = ObjectIdSerializer.class)
     private ObjectId id;
+    private String name;
+    private String description;
     @JsonSerialize(using = ObjectIdListSerializer.class)
     private List<ObjectId> categories;
     @JsonSerialize(using = ObjectIdListSerializer.class)
