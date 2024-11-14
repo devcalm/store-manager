@@ -2,7 +2,7 @@ package org.devcalm.store.manager.service.product;
 
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.MongoTestConfig;
-import org.devcalm.store.manager.data.ProductTestDataService;
+import org.devcalm.store.manager.data.ProductTestData;
 import org.devcalm.store.manager.domain.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,18 +14,18 @@ import reactor.test.StepVerifier;
 
 @DataMongoTest
 @ContextConfiguration(classes = {MongoTestConfig.class})
-@ComponentScan(basePackageClasses = {ProductFetcher.class, ProductTestDataService.class},
+@ComponentScan(basePackageClasses = {ProductFetcher.class, ProductTestData.class},
         excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = ProductService.class)})
 class ProductFetcherTest {
 
     @Autowired
     private ProductFetcher productFetcher;
     @Autowired
-    private ProductTestDataService productTestDataService;
+    private ProductTestData productTestData;
 
     @Test
     void shouldFindById() {
-        var product = productTestDataService.createProduct();
+        var product = productTestData.createProduct();
 
         StepVerifier.create(productFetcher.findById(product.getId()))
                 .expectNext(product).verifyComplete();

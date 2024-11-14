@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 
 @Component
-public class CategoryTestDataService {
+public class CategoryTestData {
 
     @Autowired
     private CategoryRepository categoryRepository;

@@ -15,6 +15,7 @@ public class Category extends BaseEntity {
     private String name;
     private String description;
     private ObjectId parentId;
+    private ObjectId vendorId;
 
     public static final String COLLECTION_NAME = "categories";
 }

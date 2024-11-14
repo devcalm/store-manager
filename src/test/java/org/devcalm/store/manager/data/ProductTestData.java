@@ -11,7 +11,7 @@ import java.util.List;
 import static org.instancio.Select.field;
 
 @Component
-public class ProductTestDataService {
+public class ProductTestData {
 
     @Autowired
     private ProductRepository productRepository;

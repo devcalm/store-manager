@@ -2,9 +2,10 @@ package org.devcalm.store.manager.service.product;
 
 import org.devcalm.store.manager.MongoTestConfig;
 
-import org.devcalm.store.manager.data.CategoryTestDataService;
-import org.devcalm.store.manager.data.ProductTestDataService;
+import org.devcalm.store.manager.data.CategoryTestData;
+import org.devcalm.store.manager.data.ProductTestData;
 import org.devcalm.store.manager.domain.model.BaseEntity;
+import org.devcalm.store.manager.domain.model.Vendor;
 import org.devcalm.store.manager.domain.repository.ProductRepository;
 import org.devcalm.store.manager.service.category.CategoryFetcher;
 import org.devcalm.store.manager.web.dto.ProductDto;
@@ -27,7 +28,7 @@ import static org.instancio.Select.field;
 
 @DataMongoTest
 @ContextConfiguration(classes = MongoTestConfig.class)
-@ComponentScan(basePackageClasses = {ProductService.class, CategoryFetcher.class, ProductTestDataService.class, CategoryTestDataService.class})
+@ComponentScan(basePackageClasses = {ProductService.class, CategoryFetcher.class, ProductTestData.class, CategoryTestData.class})
 class ProductServiceTest {
 
     @Autowired
@@ -35,9 +36,9 @@ class ProductServiceTest {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private CategoryTestDataService categoryTestDataService;
+    private CategoryTestData categoryTestData;
     @Autowired
-    private ProductTestDataService productTestDataService;
+    private ProductTestData productTestData;
 
     @BeforeEach
     void setUp() {
@@ -46,12 +47,13 @@ class ProductServiceTest {
 
     @Test
     void shouldCreateProduct() {
-        var categoryId = categoryTestDataService.createCategory().getId();
+        var categoryId = categoryTestData.createCategory().getId();
+        var vendor = Instancio.of(Vendor.class).create();
         var request = Instancio.of(SaveProductRequest.class)
                 .set(field(SaveProductRequest::categories), List.of(categoryId))
                 .create();
 
-        StepVerifier.create(productService.create(request)).expectNextMatches(dto -> {
+        StepVerifier.create(productService.create(vendor, request)).expectNextMatches(dto -> {
             assertProductDto(dto, request);
             return true;
         }).verifyComplete();
@@ -59,7 +61,7 @@ class ProductServiceTest {
 
     @Test
     void shouldFindById() {
-        var store = productTestDataService.createProduct();
+        var store = productTestData.createProduct();
 
         StepVerifier.create(productService.findById(store.getId()))
                 .expectNextMatches(Objects::nonNull)
@@ -70,7 +72,7 @@ class ProductServiceTest {
     @Test
     void shouldFindAllProducts() {
         final int sizeOfElements = 5;
-        var stores = productTestDataService.createProducts(sizeOfElements);
+        var stores = productTestData.createProducts(sizeOfElements);
 
         assertThat(stores).isNotEmpty();
 
@@ -84,7 +86,7 @@ class ProductServiceTest {
 
     @Test
     void shouldSoftDelete() {
-        var store = productTestDataService.createProduct();
+        var store = productTestData.createProduct();
 
         StepVerifier.create(productService.delete(store.getId())
                         .then(productRepository.findById(store.getId())))
@@ -95,8 +97,8 @@ class ProductServiceTest {
 
     @Test
     void shouldUpdateProduct() {
-        var categoryId = categoryTestDataService.createCategory().getId();
-        var store = productTestDataService.createProduct();
+        var categoryId = categoryTestData.createCategory().getId();
+        var store = productTestData.createProduct();
         var request = Instancio.of(SaveProductRequest.class)
                 .set(field(SaveProductRequest::categories), List.of(categoryId))
                 .create();

@@ -1,9 +1,10 @@
 package org.devcalm.store.manager.service.category;
 
 import org.devcalm.store.manager.MongoTestConfig;
-import org.devcalm.store.manager.data.CategoryTestDataService;
+import org.devcalm.store.manager.data.CategoryTestData;
 import org.devcalm.store.manager.domain.exception.EntityNotFoundException;
 import org.devcalm.store.manager.domain.model.Category;
+import org.devcalm.store.manager.domain.model.Vendor;
 import org.devcalm.store.manager.domain.repository.CategoryRepository;
 import org.devcalm.store.manager.web.dto.CategoryDto;
 import org.devcalm.store.manager.web.dto.SaveCategoryRequest;
@@ -26,7 +27,7 @@ import java.util.Objects;
 
 @DataMongoTest
 @ContextConfiguration(classes = MongoTestConfig.class)
-@ComponentScan(basePackageClasses = {CategoryService.class, CategoryTestDataService.class})
+@ComponentScan(basePackageClasses = {CategoryService.class, CategoryTestData.class})
 class CategoryServiceTest {
 
     @Autowired
@@ -34,7 +35,7 @@ class CategoryServiceTest {
     @Autowired
     private CategoryService categoryService;
     @Autowired
-    private CategoryTestDataService categoryTestDataService;
+    private CategoryTestData categoryTestData;
 
     @BeforeEach
     void setUp() {
@@ -44,8 +45,9 @@ class CategoryServiceTest {
     @Test
     void shouldCreateCategoryWithoutParent() {
         var request = createRequestWithoutParent();
+        var vendor = Instancio.of(Vendor.class).create();
 
-        StepVerifier.create(categoryService.create(request))
+        StepVerifier.create(categoryService.create(vendor, request))
                 .expectNextMatches(dto -> {
                     assertCategoryDto(dto, request);
                     return true;
@@ -55,7 +57,8 @@ class CategoryServiceTest {
     @Test
     void shouldCreateCategoryWithParent() {
         var requestWithoutParent = createRequestWithoutParent();
-        var parentDto = categoryService.create(requestWithoutParent).block();
+        var vendor = Instancio.of(Vendor.class).create();
+        var parentDto = categoryService.create(vendor, requestWithoutParent).block();
 
         assertThat(parentDto).isNotNull();
 
@@ -63,7 +66,7 @@ class CategoryServiceTest {
                 .set(field(SaveCategoryRequest::parentId), parentDto.getId())
                 .create();
 
-        StepVerifier.create(categoryService.create(request))
+        StepVerifier.create(categoryService.create(vendor, request))
                 .expectNextMatches(dto -> {
                     assertCategoryDto(dto, request);
                     return true;
@@ -79,8 +82,9 @@ class CategoryServiceTest {
     @Test
     void shouldThrowExceptionWhenParentCategoryNotFound() {
         var request = Instancio.of(SaveCategoryRequest.class).create();
+        var vendor = Instancio.of(Vendor.class).create();
 
-        StepVerifier.create(categoryService.create(request))
+        StepVerifier.create(categoryService.create(vendor, request))
                 .expectErrorMatches(throwable ->
                         throwable instanceof EntityNotFoundException &&
                                 throwable.getMessage().equals("Parent category is not found."))
@@ -89,7 +93,7 @@ class CategoryServiceTest {
 
     @Test
     void shouldFindNotArchivedCategory() {
-        var category = categoryTestDataService.createCategory();
+        var category = categoryTestData.createCategory();
 
         StepVerifier.create(categoryService.find(category.getId()))
                 .expectNextMatches(Objects::nonNull)
@@ -99,7 +103,7 @@ class CategoryServiceTest {
     @Test
     void shouldFindAllNotArchivedCategory() {
         final int sizeOfElements = 5;
-        var categories = categoryTestDataService.createCategories(sizeOfElements);
+        var categories = categoryTestData.createCategories(sizeOfElements);
 
         assertThat(categories).isNotEmpty();
 
@@ -113,7 +117,7 @@ class CategoryServiceTest {
 
     @Test
     void shouldUpdateCategory() {
-        var category = categoryTestDataService.createCategory();
+        var category = categoryTestData.createCategory();
         var request = createRequestWithoutParent();
 
         StepVerifier.create(categoryService.update(category.getId(), request))
@@ -125,7 +129,7 @@ class CategoryServiceTest {
 
     @Test
     void shouldDeleteCategoriesWithDescendants() {
-        var category = categoryTestDataService.createCategoryWithParent();
+        var category = categoryTestData.createCategoryWithParent();
 
         categoryService.delete(category.getParentId()).block();
 
@@ -137,7 +141,7 @@ class CategoryServiceTest {
     @Test
     void shouldFetchHierarchy() {
         final int sizeOfElements = 10;
-        categoryTestDataService.createCategories(sizeOfElements);
+        categoryTestData.createCategories(sizeOfElements);
 
         StepVerifier.create(categoryService.fetchHierarchy())
                 .expectNextCount(sizeOfElements)

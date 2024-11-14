@@ -4,7 +4,6 @@ import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -12,14 +11,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Document(collection = "products")
-public class Product extends BaseEntity {
+@Document(collection = "vendors")
+public class Vendor extends BaseEntity {
     private String name;
-    private BigDecimal price;
-    private double discount;
-    private int timeTakenInMinutes;
     private String description;
-    private String notes;
+    private List<ObjectId> storeIds;
     private List<ObjectId> categoryIds;
-    private ObjectId vendorId;
+    private List<ObjectId> productIds;
+
+    public static final String COLLECTION_NAME = "vendors";
 }

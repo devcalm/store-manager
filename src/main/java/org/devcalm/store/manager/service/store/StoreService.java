@@ -2,6 +2,7 @@ package org.devcalm.store.manager.service.store;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.devcalm.store.manager.domain.model.Vendor;
 import org.devcalm.store.manager.domain.repository.StoreRepository;
 import org.devcalm.store.manager.service.category.CategoryFetcher;
 import org.devcalm.store.manager.web.dto.SaveStoreRequest;
@@ -21,9 +22,14 @@ public class StoreService {
     private final CategoryFetcher categoryFetcher;
     private final StoreRepository storeRepository;
 
-    public Mono<StoreDto> create(SaveStoreRequest request) {
+    public Mono<StoreDto> create(Vendor vendor, SaveStoreRequest request) {
         return categoryFetcher.checkExistCategories(request.categories())
-                .then(Mono.defer(() -> storeRepository.save(storeMapper.toEntity(request)).map(storeMapper::toDto)));
+                .then(Mono.defer(() -> {
+                            var store = storeMapper.toEntity(request);
+                            store.setVendorId(vendor.getId());
+                            return storeRepository.save(store);
+                        }
+                ).map(storeMapper::toDto));
     }
 
     public Mono<StoreDto> findById(ObjectId id) {

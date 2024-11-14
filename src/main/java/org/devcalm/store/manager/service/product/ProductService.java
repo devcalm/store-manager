@@ -2,6 +2,7 @@ package org.devcalm.store.manager.service.product;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.devcalm.store.manager.domain.model.Vendor;
 import org.devcalm.store.manager.domain.repository.ProductRepository;
 import org.devcalm.store.manager.service.category.CategoryFetcher;
 import org.devcalm.store.manager.web.dto.SaveProductRequest;
@@ -21,9 +22,14 @@ public class ProductService {
     private final CategoryFetcher categoryFetcher;
     private final ProductRepository productRepository;
 
-    public Mono<ProductDto> create(SaveProductRequest request) {
+    public Mono<ProductDto> create(Vendor vendor, SaveProductRequest request) {
         return categoryFetcher.checkExistCategories(request.categories())
-                .then(Mono.defer(() -> productRepository.save(productMapper.toEntity(request)).map(productMapper::toDto)));
+                .then(Mono.defer(() -> {
+                            var product = productMapper.toEntity(request);
+                            product.setVendorId(vendor.getId());
+                            return productRepository.save(product);
+                        })
+                        .map(productMapper::toDto));
     }
 
     public Mono<ProductDto> findById(ObjectId id) {
