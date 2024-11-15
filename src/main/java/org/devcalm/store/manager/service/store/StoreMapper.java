@@ -16,6 +16,7 @@ public class StoreMapper {
                 .contactInfo(request.contactInfo())
                 .categoryIds(request.categories())
                 .tags(request.tags())
+                .productCustomizations(request.products())
                 .build();
     }
 
@@ -28,6 +29,7 @@ public class StoreMapper {
                 .contactInfo(entity.getContactInfo())
                 .categories(entity.getCategoryIds())
                 .tags(entity.getTags())
+                .products(entity.getProductCustomizations())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

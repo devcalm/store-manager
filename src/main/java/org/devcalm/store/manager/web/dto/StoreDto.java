@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.domain.model.AddressInfo;
 import org.devcalm.store.manager.domain.model.ContactInfo;
+import org.devcalm.store.manager.domain.model.ProductCustomization;
 import org.devcalm.store.manager.infrastructure.serializer.ObjectIdListSerializer;
 import org.devcalm.store.manager.infrastructure.serializer.ObjectIdSerializer;
 
@@ -28,6 +29,7 @@ public class StoreDto {
     @JsonSerialize(using = ObjectIdListSerializer.class)
     private List<ObjectId> categories;
     private List<String> tags;
+    private List<ProductCustomization> products;
     private Instant updatedAt;
     private Instant createdAt;
 }

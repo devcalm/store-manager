@@ -2,6 +2,7 @@ package org.devcalm.store.manager.service.store;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.devcalm.store.manager.domain.model.ProductCustomization;
 import org.devcalm.store.manager.domain.model.Vendor;
 import org.devcalm.store.manager.domain.repository.StoreRepository;
 import org.devcalm.store.manager.service.category.CategoryFetcher;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,12 +27,13 @@ public class StoreService {
 
     public Mono<StoreDto> create(Vendor vendor, SaveStoreRequest request) {
         return categoryFetcher.checkExistCategories(request.categories())
-                .then(Mono.defer(() -> {
-                            var store = storeMapper.toEntity(request);
-                            store.setVendorId(vendor.getId());
-                            return storeRepository.save(store);
-                        }
-                ).map(storeMapper::toDto));
+                .then(Mono.defer(() -> storeFetcher.checkExistProducts(extractIds(request)))
+                        .then(Mono.defer(() -> {
+                                    var store = storeMapper.toEntity(request);
+                                    store.setVendorId(vendor.getId());
+                                    return storeRepository.save(store);
+                                })
+                        ).map(storeMapper::toDto));
     }
 
     public Mono<StoreDto> findById(ObjectId id) {
@@ -52,15 +56,24 @@ public class StoreService {
 
     public Mono<StoreDto> update(ObjectId id, SaveStoreRequest request) {
         return categoryFetcher.checkExistCategories(request.categories())
-                .then(Mono.defer(() -> storeFetcher.findById(id))
-                        .flatMap(store -> {
-                            store.setName(request.name());
-                            store.setDescription(request.description());
-                            store.setTags(request.tags());
-                            store.setAddressInfo(request.addressInfo());
-                            store.setContactInfo(request.contactInfo());
-                            store.setCategoryIds(request.categories());
-                            return storeRepository.save(store);
-                        }).map(storeMapper::toDto));
+                .then(Mono.defer(() -> storeFetcher.checkExistProducts(extractIds(request)))
+                        .then(Mono.defer(() -> storeFetcher.findById(id))
+                                .flatMap(store -> {
+                                    store.setName(request.name());
+                                    store.setDescription(request.description());
+                                    store.setTags(request.tags());
+                                    store.setAddressInfo(request.addressInfo());
+                                    store.setContactInfo(request.contactInfo());
+                                    store.setCategoryIds(request.categories());
+                                    store.setProductCustomizations(request.products());
+                                    return storeRepository.save(store);
+                                }).map(storeMapper::toDto)));
+    }
+
+    private List<ObjectId> extractIds(SaveStoreRequest request) {
+        if (request.products() == null) {
+            return List.of();
+        }
+        return request.products().stream().map(ProductCustomization::getProductId).toList();
     }
 }
