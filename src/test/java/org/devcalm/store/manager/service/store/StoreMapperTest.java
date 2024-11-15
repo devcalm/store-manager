@@ -22,6 +22,7 @@ class StoreMapperTest {
         assertThat(entity.getAddressInfo()).isEqualTo(request.addressInfo());
         assertThat(entity.getContactInfo()).isEqualTo(request.contactInfo());
         assertThat(entity.getCategoryIds()).isEqualTo(request.categories());
+        assertThat(entity.getProductCustomizations()).isEqualTo(request.products());
         assertThat(entity.getTags()).isEqualTo(request.tags());
     }
 
@@ -37,6 +38,7 @@ class StoreMapperTest {
         assertThat(dto.getAddressInfo()).isEqualTo(entity.getAddressInfo());
         assertThat(dto.getContactInfo()).isEqualTo(entity.getContactInfo());
         assertThat(dto.getTags()).isEqualTo(entity.getTags());
+        assertThat(dto.getProducts()).isEqualTo(entity.getProductCustomizations());
         assertThat(dto.getCreatedAt()).isEqualTo(entity.getCreatedAt());
         assertThat(dto.getUpdatedAt()).isEqualTo(entity.getUpdatedAt());
     }

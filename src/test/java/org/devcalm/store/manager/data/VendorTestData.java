@@ -17,6 +17,9 @@ public class VendorTestData {
     public Vendor createVendor() {
         return vendorRepository.save(Instancio.of(Vendor.class)
                 .set(field(Vendor::isArchived), false)
+                .ignore(field(Vendor::getCategoryIds))
+                .ignore(field(Vendor::getProductIds))
+                .ignore(field(Vendor::getStoreIds))
                 .create()).block();
     }
 }

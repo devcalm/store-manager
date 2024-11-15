@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.bson.types.ObjectId;
 import org.devcalm.store.manager.domain.model.AddressInfo;
 import org.devcalm.store.manager.domain.model.ContactInfo;
+import org.devcalm.store.manager.domain.model.ProductCustomization;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public record SaveStoreRequest(
         @NotNull
         ContactInfo contactInfo,
         List<ObjectId> categories,
-        List<String> tags
+        List<String> tags,
+        List<ProductCustomization> products
 ) {
 }
