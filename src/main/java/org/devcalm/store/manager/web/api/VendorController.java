@@ -2,13 +2,17 @@ package org.devcalm.store.manager.web.api;
 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.devcalm.store.manager.service.vendor.VendorExcelImport;
+import org.devcalm.store.manager.service.vendor.VendorFetcher;
 import org.devcalm.store.manager.service.vendor.VendorService;
 import org.devcalm.store.manager.web.dto.SaveVendorRequest;
 import org.devcalm.store.manager.web.dto.VendorDto;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -19,6 +23,8 @@ import reactor.core.publisher.Mono;
 public class VendorController {
 
     private final VendorService vendorService;
+    private final VendorFetcher vendorFetcher;
+    private final VendorExcelImport vendorExcelImport;
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -49,5 +55,15 @@ public class VendorController {
                                         @RequestParam(defaultValue = "ASC") Sort.Direction sortDirection) {
         var pageable = PageRequest.of(page, size, sortDirection, sortField.getDatabaseFileName());
         return vendorService.findAll(pageable);
+    }
+
+    @PostMapping("{id}/import/excel")
+    public Mono<Void> excelImport(@PathVariable("id") ObjectId id, @RequestPart("file") Mono<FilePart> filePartMono) {
+        return Mono.zip(vendorFetcher.findById(id), filePartMono).flatMap(tuple -> {
+            var vendor = tuple.getT1();
+            var filePart = tuple.getT2();
+            return DataBufferUtils.join(filePart.content())
+                    .flatMap(dataBuffer -> vendorExcelImport.fileImport(vendor, dataBuffer.asInputStream()));
+        });
     }
 }
