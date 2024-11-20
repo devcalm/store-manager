@@ -18,7 +18,8 @@ public class Store extends BaseEntity {
     private String description;
     private AddressInfo addressInfo;
     private ContactInfo contactInfo;
-    private List<ObjectId> categoryIds;
+    @Builder.Default
+    private List<ObjectId> categoryIds = new ArrayList<>();
     private List<String> tags;
     private ObjectId vendorId;
     @Builder.Default

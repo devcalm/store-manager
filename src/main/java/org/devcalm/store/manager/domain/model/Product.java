@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,7 +21,8 @@ public class Product extends BaseEntity {
     private int timeTakenInMinutes;
     private String description;
     private String notes;
-    private List<ObjectId> categoryIds;
+    @Builder.Default
+    private List<ObjectId> categoryIds = new ArrayList<>();
     private ObjectId vendorId;
 
     public static final String COLLECTION_NAME = "products";
