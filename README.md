@@ -36,7 +36,6 @@ This project is a Spring Boot WebFlux microservice designed to manage vendors, s
 ### Validation and Error Handling
 * Validates Excel file content with detailed error messages for invalid entries.
 * Robust error handling and validation for API operations.
----
 
 ## Technologies Used
 
@@ -45,9 +44,9 @@ This project is a Spring Boot WebFlux microservice designed to manage vendors, s
 * Fastexcel: Excel file processing
 * Testcontainers: MongoDB test processing
 * Lombok: Simplified model creation
----
 
 ## Next Steps
+
 1. Enhance authentication and authorization for API endpoints.
 2. Append Client filtering
 3. Implement stores search mechanism  
