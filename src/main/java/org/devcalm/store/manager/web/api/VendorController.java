@@ -58,6 +58,7 @@ public class VendorController {
     }
 
     @PostMapping("{id}/import/excel")
+    @ResponseStatus(code = HttpStatus.CREATED)
     public Mono<Void> excelImport(@PathVariable("id") ObjectId id, @RequestPart("file") Mono<FilePart> filePartMono) {
         return Mono.zip(vendorFetcher.findById(id), filePartMono).flatMap(tuple -> {
             var vendor = tuple.getT1();
