@@ -31,7 +31,7 @@ This project is a Spring Boot WebFlux microservice designed to manage vendors, s
      * Find vendor **GET** <code>/{id}</code> response status **200** 
      * Find all vendors **GET** <code>?page=0&size=25&sortField=ID&sortDirection=ASC</code> response status **200** 
      * Delete vendor **DELETE** <code>/{id}</code> response status **204** 
-     * Import vendors from Excel file **Post** <code>/{id}/import/excel</code> response status **200**
+     * Import vendors from Excel file **Post** <code>/{id}/import/excel</code> response status **201**
 
 ### Validation and Error Handling
 * Validates Excel file content with detailed error messages for invalid entries.
