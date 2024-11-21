@@ -59,7 +59,6 @@ public class CategoryController {
     public Mono<Void> delete(@PathVariable ObjectId vendorId, @PathVariable ObjectId id) {
         return vendorFetcher.findById(vendorId)
                 .then(categoryService.delete(id));
-
     }
 
     @GetMapping("hierarchy")
