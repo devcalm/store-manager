@@ -6,6 +6,7 @@ import org.instancio.Instancio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 
 @Component
@@ -13,6 +14,12 @@ public class VendorTestData {
 
     @Autowired
     private VendorRepository vendorRepository;
+    @Autowired
+    private CategoryTestData categoryTestData;
+    @Autowired
+    private ProductTestData productTestData;
+    @Autowired
+    private StoreTestData storeTestData;
 
     public Vendor createVendor() {
         return vendorRepository.save(Instancio.of(Vendor.class)
@@ -22,4 +29,13 @@ public class VendorTestData {
                 .ignore(field(Vendor::getStoreIds))
                 .create()).block();
     }
+
+    public Vendor createVendorWithRelations() {
+        var vendor = createVendor();
+        assertThat(categoryTestData.createCategory(vendor.getId())).isNotNull();
+        assertThat(productTestData.createProduct(vendor.getId())).isNotNull();
+        assertThat(storeTestData.createStore(vendor.getId())).isNotNull();
+        return vendor;
+    }
+
 }
