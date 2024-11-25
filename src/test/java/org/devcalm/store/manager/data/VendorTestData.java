@@ -6,6 +6,8 @@ import org.instancio.Instancio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 
@@ -28,6 +30,14 @@ public class VendorTestData {
                 .ignore(field(Vendor::getProductIds))
                 .ignore(field(Vendor::getStoreIds))
                 .create()).block();
+    }
+
+    public List<Vendor> createVendors(int sizeOfElements) {
+        var entities = Instancio.ofList(Vendor.class)
+                .size(sizeOfElements)
+                .set(field(Vendor::isArchived), false)
+                .create();
+        return vendorRepository.saveAll(entities).collectList().block();
     }
 
     public Vendor createVendorWithRelations() {
