@@ -1,9 +1,24 @@
 version: "3.8"
 
 services:
+  app:
+    image: store-manager:latest
+    container_name: store-manager-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_DB=${MONGO_DB}
+
   mongo:
     image: mongo:8.0
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    command: [ "--replSet", "rs0", "--bind_ip_all", "--port", "27017" ]
     container_name: store-mongo
     ports:
       - "27017:27017"
@@ -11,11 +26,10 @@ services:
       - "host.docker.internal:host-gateway"
     healthcheck:
       test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
-      interval: 5s
-      timeout: 30s
-      start_period: 0s
-      start_interval: 1s
-      retries: 30
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
     volumes:
       - "store_mongo_data:/data/db"
       - "store_mongo_config:/data/configdb"
