@@ -1,5 +1,6 @@
 package org.devcalm.store.manager.data;
 
+import org.bson.types.ObjectId;
 import org.devcalm.store.manager.domain.model.Product;
 import org.devcalm.store.manager.domain.repository.ProductRepository;
 import org.instancio.Instancio;
@@ -19,6 +20,14 @@ public class ProductTestData {
     public Product createProduct() {
         return productRepository.save(Instancio.of(Product.class)
                 .set(field(Product::isArchived), false)
+                .create()
+        ).block();
+    }
+
+    public Product createProduct(ObjectId vendorId) {
+        return productRepository.save(Instancio.of(Product.class)
+                .set(field(Product::isArchived), false)
+                .set(field(Product::getVendorId), vendorId)
                 .create()
         ).block();
     }

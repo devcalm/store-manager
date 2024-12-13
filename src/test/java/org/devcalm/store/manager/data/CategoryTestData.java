@@ -1,5 +1,6 @@
 package org.devcalm.store.manager.data;
 
+import org.bson.types.ObjectId;
 import org.devcalm.store.manager.domain.model.Category;
 import org.devcalm.store.manager.domain.repository.CategoryRepository;
 import org.instancio.Instancio;
@@ -20,6 +21,14 @@ public class CategoryTestData {
     public Category createCategory() {
         return categoryRepository.save(Instancio.of(Category.class)
                         .set(field(Category::isArchived), false)
+                        .create())
+                .block();
+    }
+
+    public Category createCategory(ObjectId vendorId) {
+        return categoryRepository.save(Instancio.of(Category.class)
+                        .set(field(Category::isArchived), false)
+                        .set(field(Category::getVendorId), vendorId)
                         .create())
                 .block();
     }

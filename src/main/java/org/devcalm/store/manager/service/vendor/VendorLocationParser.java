@@ -1,5 +1,6 @@
 package org.devcalm.store.manager.service.vendor;
 
+import org.devcalm.store.manager.domain.exception.StoreException;
 import org.devcalm.store.manager.domain.model.AddressInfo;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class VendorLocationParser {
             addressInfo.setPostalCode(matcher.group(5));
             return addressInfo;
         } else {
-            throw new IllegalArgumentException("Invalid address format: " + location);
+            throw new StoreException("Invalid address format: " + location);
         }
     }
 }

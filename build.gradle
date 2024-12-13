@@ -67,3 +67,8 @@ jacocoTestReport {
 		}))
 	}
 }
+
+bootJar {
+	mainClass.set('org.devcalm.store.manager.App')
+	archiveFileName.set('store-manager.jar')
+}
